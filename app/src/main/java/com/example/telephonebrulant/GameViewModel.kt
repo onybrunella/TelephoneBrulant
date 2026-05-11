@@ -2,6 +2,7 @@ package com.example.telephonebrulant
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,7 +26,8 @@ data class GameState(
     val isGameOver: Boolean = false,
     val isBugMode: Boolean = false,
     val currentEvent: GameEvent = GameEvent.NONE, //l'évènement spécial en cours
-    val score: Int = 0
+    val score: Int = 0,
+    val isHeatMode: Boolean =false
 )
 
 class GameViewModel : ViewModel() {
@@ -33,11 +35,28 @@ class GameViewModel : ViewModel() {
     private val _state = MutableStateFlow(GameState())
     val state: StateFlow<GameState> = _state
 
-    fun startGame() {
-        _state.value = GameState(isRunning = true)
+    fun startGame(heatMode: Boolean=false) {
+        _state.value = GameState(isRunning = true, isHeatMode = heatMode)
         startHeatLoop()
         startEventLoop()
         startBugModeLoop()
+        if(heatMode) startHeatMode()
+    }
+
+    private fun startHeatMode() {
+        viewModelScope.launch (Dispatchers.Default) {
+                while (_state.value.isRunning) {
+                    var pi = 0.0
+                    var sign = 1.0
+
+                    for (i in 0..1_000_000) {
+                        val denominator = (2 * i + 1).toDouble()
+                        pi += sign * (4.0 / denominator)
+                        sign = -sign
+                    }
+                delay(100)
+                }
+        }
     }
 
     //fun onShake(intensity: Float) { //appeller à chaque secousse
@@ -46,11 +65,20 @@ class GameViewModel : ViewModel() {
         if (!s.isRunning) return
 
         val isCorrectAxis=when (s.currentEvent){
-            GameEvent.AX
+            GameEvent.AXIS_X -> x > y && x > z
+            GameEvent.AXIS_Y -> y > x && y > z
+            //GameEvent.AXIS_X -> x > y && x > z
+            else -> true
         }
         //val effectiveIntensity = if (s.currentEvent == GameEvent.SENSOR_CRAZY) //Si SENSOR_CRAZY on divise l'intensité par 2.5
             //intensity * 0.4f else intensity
         val intensity = sqrt(x * x + y * y + z * z)
+        val effectiveIntensity = when{
+            !isCorrectAxis -> 0f
+            s.currentEvent == GameEvent.SENSOR_CRAZY -> intensity * 0.4f
+            else -> intensity
+        }
+        //intensity * 0.4f else intensity
 
         val coolingMultiplier = if (s.currentEvent == GameEvent.COOLING_BOOST) 2f else 1f //Si COOLING_BOOST,2f , augmentation de l'intensité
 

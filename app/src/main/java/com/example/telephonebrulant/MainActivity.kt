@@ -13,8 +13,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        shakeDetector = ShakeDetector(this) { intensity ->
-            viewModel.onShake(intensity)
+//        shakeDetector = ShakeDetector(this) { intensity ->
+//            viewModel.onShake(intensity)
+//        }
+        shakeDetector = ShakeDetector(this) { x,y,z ->
+           viewModel.onShake(x,y,z)
         }
 
         setContent {

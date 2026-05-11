@@ -62,7 +62,10 @@ fun GameScreen(viewModel: GameViewModel) {
     ) {
         when {
             state.isGameOver -> GameOverScreen(state.score) { viewModel.resetGame() }
-            !state.isRunning -> StartScreen { viewModel.startGame() }
+         //   !state.isRunning -> StartScreen { viewModel.startGame() }
+            !state.isRunning && !state.isGameOver -> StartScreen { heatMode ->
+                viewModel.startGame(heatMode)
+            }
             else -> PlayingScreen(state)
         }
     }
@@ -124,6 +127,8 @@ fun PlayingScreen(state: GameState) {
                     GameEvent.OVERCLOCK -> "🔥 ALERTE : CHAUFFE X2"
                     GameEvent.SENSOR_CRAZY -> "📡 CAPTEUR INSTABLE"
                     GameEvent.INSTABILITY -> "🧬 SYSTÈME INSTABLE"
+                    GameEvent.AXIS_X -> "SECOUEZ HORIZONTALEMENT !"
+                    GameEvent.AXIS_Y -> "SECOUEZ VERTICALEMENT !"
                     else -> ""
                 }
                 Text(eventDesc, color = Color.Yellow, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)
@@ -172,24 +177,65 @@ fun HeatBar(heat: Float) {
 }
 
 @Composable
-fun StartScreen(onStart: () -> Unit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+fun StartScreen(onStart: (Boolean) -> Unit) {
+    var heatModeEnabled by remember { mutableStateOf(false) }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.padding(32.dp)
+    ) {
         Text(
-            text = "TÉLÉPHONE\nBRÛLANT",
-            fontSize = 42.sp,
+            text = "TÉLÉPHONE BRÛLANT",
+            fontSize = 32.sp,
             fontWeight = FontWeight.Black,
-            color = Color.White,
-            textAlign = TextAlign.Center,
-            lineHeight = 44.sp
+            color = Color.White
         )
-        Spacer(modifier = Modifier.height(32.dp))
-        Button(
-            onClick = onStart,
-            colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = Color.Black),
-            shape = RoundedCornerShape(8.dp),
-            contentPadding = PaddingValues(horizontal = 32.dp, vertical = 12.dp)
+        Text(
+            text = "Secouez pour refroidir !\nMais attention aux bugs...",
+            fontSize = 16.sp,
+            color = Color.Gray,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Toggle mode hardcore
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text("DÉMARRER LE JEU", fontWeight = FontWeight.ExtraBold)
+            Switch(
+                checked = heatModeEnabled,
+                onCheckedChange = { heatModeEnabled = it },
+                colors = SwitchDefaults.colors(checkedThumbColor = Color.Red)
+            )
+            Column {
+                Text(
+                    text = "Mode Hardcore",
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "Chauffe le CPU réellement",
+                    color = Color.Gray,
+                    fontSize = 12.sp
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Button(
+            onClick = { onStart(heatModeEnabled) },
+            colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text(
+                text = if (heatModeEnabled) "DÉMARRER — MODE HARDCORE" else "DÉMARRER",
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
         }
     }
 }

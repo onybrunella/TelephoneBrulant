@@ -7,7 +7,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import kotlin.math.sqrt
 
-class ShakeDetector(context: Context,private val onShakeUpdate: (intensity : Float) -> Unit) : SensorEventListener {
+class ShakeDetector(context: Context, private val onShakeUpdate: (x : Float, y :Float, z : Float) -> Unit) : SensorEventListener {
     private val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     private val accelerometer : Sensor? = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
@@ -35,7 +35,8 @@ class ShakeDetector(context: Context,private val onShakeUpdate: (intensity : Flo
         val magnitude = sqrt(x * x + y * y + z * z)
 
         if (magnitude > SHAKE_THRESHOLD_GRAVITY) {
-            onShakeUpdate(magnitude) // si c'est assez fort, c'est que c'est problament un vrai shake
+          //  onShakeUpdate(magnitude) // si c'est assez fort, c'est que c'est problament un vrai shake
+            onShakeUpdate(x,y,z)
         }
     }
 
