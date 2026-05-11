@@ -6,6 +6,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlin.math.sqrt
 import kotlin.random.Random
 
 enum class GameEvent {
@@ -13,7 +14,9 @@ enum class GameEvent {
     COOLING_BOOST,  //bonusde refroidisseement = secosses plus efficace
     OVERCLOCK,      // malus =chauffe x2
     SENSOR_CRAZY,   // malus =capteur moins précis
-    INSTABILITY     // bugs plus fréquents
+    INSTABILITY ,    // bugs plus fréquents
+    AXIS_X, //horizontalement
+    AXIS_Y,//verticalement
 }
 
 data class GameState(
@@ -37,12 +40,17 @@ class GameViewModel : ViewModel() {
         startBugModeLoop()
     }
 
-    fun onShake(intensity: Float) { //appeller à chaque secousse
+    //fun onShake(intensity: Float) { //appeller à chaque secousse
+    fun onShake(x : Float, y : Float, z : Float){
         val s = _state.value
         if (!s.isRunning) return
 
-        val effectiveIntensity = if (s.currentEvent == GameEvent.SENSOR_CRAZY) //Si SENSOR_CRAZY on divise l'intensité par 2.5
-            intensity * 0.4f else intensity
+        val isCorrectAxis=when (s.currentEvent){
+            GameEvent.AX
+        }
+        //val effectiveIntensity = if (s.currentEvent == GameEvent.SENSOR_CRAZY) //Si SENSOR_CRAZY on divise l'intensité par 2.5
+            //intensity * 0.4f else intensity
+        val intensity = sqrt(x * x + y * y + z * z)
 
         val coolingMultiplier = if (s.currentEvent == GameEvent.COOLING_BOOST) 2f else 1f //Si COOLING_BOOST,2f , augmentation de l'intensité
 
