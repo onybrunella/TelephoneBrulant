@@ -6,6 +6,8 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -380,7 +382,7 @@ fun StartScreen(onStart: (Boolean) -> Unit) {
                 lineHeight = 42.sp
             )
             Text(
-                text = "Secouez pour refroidir votre téléphone\navant qu'il explose ! Mais attention aux bugs... !",
+                text = "Secouez pour refroidir votre téléphone avant qu'il explose ! Mais attention aux bugs... !",
                 fontSize = 15.sp,
                 color = Color.Gray,
                 textAlign = TextAlign.Center
@@ -419,7 +421,7 @@ fun StartScreen(onStart: (Boolean) -> Unit) {
                     )
                     Column {
                         Text(
-                            text = "Mode Hardcore",
+                            text = "Mode Surchauffe",
                             color = Color.White,
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp
@@ -442,7 +444,7 @@ fun StartScreen(onStart: (Boolean) -> Unit) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = if (heatModeEnabled) "DÉMARRER — MODE HARDCORE" else "DÉMARRER",
+                    text = if (heatModeEnabled) "DÉMARRER EN MODE SURCHAUFFE" else "DÉMARRER",
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
                 )
@@ -451,15 +453,15 @@ fun StartScreen(onStart: (Boolean) -> Unit) {
     }
 }
     // ─── TUTORIEL ───────────────────────────────────────────────
-@Composable
-fun TutorialScreen(onBack: () -> Unit) {
+    @Composable
+    fun TutorialScreen(onBack: () -> Unit) {
 
         data class TutoItem(val emoji: String, val title: String, val desc: String)
 
         val items = listOf(
             TutoItem("🔥", "Refroidissez !", "Secouez le téléphone pour faire baisser la température. Si elle atteint 100°, c'est game over."),
-            TutoItem("⚠️", "Mode bug", "Parfois les contrôles s'inversent sans prévenir — secouer chauffe alors au lieu de refroidir. Arrêtez-vous dès que vous voyez l'alerte."),
-            TutoItem("↔️", "Axe imposé", "Le jeu peut vous forcer à secouer dans une direction précise. Gauche-droite ou haut-bas... le mauvais axe ne refroidit pas."),
+            TutoItem("⚠️", "Mode bug", "Parfois les contrôles s'inversent sans prévenir, secouer chauffe alors au lieu de refroidir. Arrêtez-vous dès que vous voyez l'alerte."),
+            TutoItem("↔️", "Axe imposé", "Le jeu peut vous forcer à secouer dans une direction précise. Gauche-droite ou haut-bas — le mauvais axe ne refroidit pas."),
             TutoItem("🧊", "Power-ups", "Des bonus apparaissent à l'écran pendant quelques secondes. Appuyez dessus vite pour en profiter."),
             TutoItem("⚡", "Événements", "Des perturbations aléatoires surviennent en cours de partie : surchauffe, capteur défaillant, court-circuit..."),
             TutoItem("🏆", "Score", "Plus vous survivez longtemps dans la zone rouge, plus vous marquez de points.")
@@ -469,42 +471,52 @@ fun TutorialScreen(onBack: () -> Unit) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = "Comment jouer",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Black,
-                color = Color.White,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
-
-            items.forEach { item ->
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(text = item.emoji, fontSize = 22.sp)
-                    Column {
-                        Text(
-                            text = item.title,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
-                        Text(
-                            text = item.desc,
-                            fontSize = 13.sp,
-                            color = Color.Gray,
-                            lineHeight = 18.sp
-                        )
-                    }
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                item {
+                    Text(
+                        text = "COMMENT JOUER",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color.White,
+                        letterSpacing = 2.sp,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
                 }
-                HorizontalDivider(color = Color.White.copy(alpha = 0.08f))
+
+                items(items) { item ->
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                    ) {
+                        Text(text = item.emoji, fontSize = 22.sp)
+                        Column {
+                            Text(
+                                text = item.title,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Text(
+                                text = item.desc,
+                                fontSize = 13.sp,
+                                color = Color.Gray,
+                                lineHeight = 18.sp
+                            )
+                        }
+                    }
+                    HorizontalDivider(color = Color.White.copy(alpha = 0.08f))
+                }
             }
 
-            Spacer(modifier = Modifier.weight(1f))
-
+            // ── Bouton toujours visible en bas ──
+            Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = onBack,
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Red),
@@ -525,7 +537,7 @@ fun GameOverScreen(score: Int, onRestart: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier.padding(32.dp)
     ) {
-        Text(text = "💥\uD83D\uDC80💥\uD83D\uDC80", fontSize = 72.sp)
+        Text(text = "💥", fontSize = 72.sp)
         Text(
             text = "EXPLOSION !",
             fontSize = 40.sp,
