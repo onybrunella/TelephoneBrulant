@@ -196,7 +196,7 @@ class GameViewModel : ViewModel() {
 
         when (powerUp.type) {
             PowerUpType.ICE_PACK -> {
-                _state.value = _state.value.copy(heat = (_state.value.heat - 10f).coerceAtLeast(0f))
+                _state.value = _state.value.copy(heat = (_state.value.heat - 5f).coerceAtLeast(0f))
             }
             PowerUpType.LIQUID_NITROGEN -> {
                 nitrogenTimerJob?.cancel()

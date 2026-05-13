@@ -121,7 +121,7 @@ fun PowerUpWidget(powerUp: PowerUp, onClick: () -> Unit) {
                     )
                     Text(
                         text = when (powerUp.type) {
-                            PowerUpType.ICE_PACK        -> "-20°"
+                            PowerUpType.ICE_PACK        -> "-5°"
                             PowerUpType.LIQUID_NITROGEN -> "PAUSE 5s"
                             PowerUpType.ANTIVIRUS       -> "FIX"
                         },
