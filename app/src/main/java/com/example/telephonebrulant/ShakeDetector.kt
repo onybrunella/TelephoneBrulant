@@ -13,9 +13,8 @@ class ShakeDetector(context: Context, private val onShakeUpdate: (x : Float, y :
     private var lastShakeTime=0L
 
     companion object {
-        // Threshold for detecting a shake (2.7G ~ strong enough shake)
         private const val SHAKE_THRESHOLD_GRAVITY= 2.7f
-        private const val SHAKE_COOLDOWN_MS=300L
+        private const val SHAKE_COOLDOWN_MS=500L
     }
 
     fun start() {

@@ -73,18 +73,23 @@ class GameViewModel : ViewModel() {
         val s = _state.value
         if (!s.isRunning) return
 
-        val intensity = when (s.requiredAxis) {
-            RequiredAxis.X -> abs(x)
-            RequiredAxis.Y -> abs(y)
-            RequiredAxis.ANY -> sqrt(x * x + y * y + z * z)
-        }
-        if (intensity < 2.0f) return
+        val rawIntensity = sqrt(x * x + y * y + z * z)
 
-        val effectiveIntensity = if (s.currentEvent == GameEvent.SENSOR_CRAZY) intensity * 0.4f else intensity
-        val coolingMultiplier = if (s.currentEvent == GameEvent.COOLING_BOOST) 2.2f else 1.2f
+        val axisOk = when (s.requiredAxis) {
+            RequiredAxis.X   -> abs(x) > abs(y) && abs(x) > abs(z)
+            RequiredAxis.Y   -> abs(y) > abs(x) && abs(y) > abs(z)
+            RequiredAxis.ANY -> true
+        }
+        if (!axisOk) return
+
+        val effectiveIntensity = if (s.currentEvent == GameEvent.SENSOR_CRAZY)
+            rawIntensity * 0.4f else rawIntensity
+
+        val coolingMultiplier = if (s.currentEvent == GameEvent.COOLING_BOOST) 2f else 1f
 
         val maxCooling = (0.8f - (survivalTicks / 100) * 0.08f).coerceAtLeast(0.15f)
-        val delta = (effectiveIntensity * coolingMultiplier * 0.15f).coerceAtMost(maxCooling)
+        val delta = (effectiveIntensity * coolingMultiplier * 0.10f).coerceAtMost(maxCooling)
+
         val heatFloor = (survivalTicks / 100) * 2f
 
         val newHeat = if (s.isBugMode)
@@ -156,11 +161,15 @@ class GameViewModel : ViewModel() {
         powerUpTimerJob?.cancel()
 
         val s = _state.value
-        // Si un problème est actif, on a 40% de chance de spawn un ANTIVIRUS précisément
-        val type = if ((s.isEventActive || s.isBugMode) && Random.nextFloat() < 0.4f) {
-            PowerUpType.ANTIVIRUS
-        } else {
-            PowerUpType.entries.random()
+        val problemActive = s.isEventActive || s.isBugMode
+
+        // Antivirus seulement si un problème est actif
+        val type = when {
+            problemActive && Random.nextFloat() < 0.4f -> PowerUpType.ANTIVIRUS
+            else -> listOf(
+                PowerUpType.ICE_PACK,
+                PowerUpType.LIQUID_NITROGEN
+            ).random() // jamais d'antivirus si rien à annuler
         }
 
         val powerUp = PowerUp(
@@ -187,13 +196,13 @@ class GameViewModel : ViewModel() {
 
         when (powerUp.type) {
             PowerUpType.ICE_PACK -> {
-                _state.value = _state.value.copy(heat = (_state.value.heat - 25f).coerceAtLeast(0f))
+                _state.value = _state.value.copy(heat = (_state.value.heat - 10f).coerceAtLeast(0f))
             }
             PowerUpType.LIQUID_NITROGEN -> {
                 nitrogenTimerJob?.cancel()
                 nitrogenTimerJob = viewModelScope.launch {
-                    _state.value = _state.value.copy(isNitrogenActive = true, nitrogenSeconds = 6)
-                    repeat(6) {
+                    _state.value = _state.value.copy(isNitrogenActive = true, nitrogenSeconds = 5)
+                    repeat(5) {
                         delay(1000)
                         _state.value = _state.value.copy(nitrogenSeconds = _state.value.nitrogenSeconds - 1)
                     }

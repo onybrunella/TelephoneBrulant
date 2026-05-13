@@ -277,7 +277,7 @@ fun PlayingScreen(state: GameState, onPowerUpClick: () -> Unit) {
                 exit = fadeOut()
             ) {
                 Text(
-                    text = "💠 REFROIDISSEMENT — ${state.nitrogenSeconds}s",
+                    text = "💠 PAUSE — ${state.nitrogenSeconds}s",
                     fontSize = 14.sp,
                     color = ColorNitrogen,
                     fontWeight = FontWeight.Bold,
@@ -459,12 +459,22 @@ fun StartScreen(onStart: (Boolean) -> Unit) {
         data class TutoItem(val emoji: String, val title: String, val desc: String)
 
         val items = listOf(
-            TutoItem("🔥", "Refroidissez !", "Secouez le téléphone pour faire baisser la température. Si elle atteint 100°, c'est game over."),
-            TutoItem("⚠️", "Mode bug", "Parfois les contrôles s'inversent sans prévenir, secouer chauffe alors au lieu de refroidir. Arrêtez-vous dès que vous voyez l'alerte."),
-            TutoItem("↔️", "Axe imposé", "Le jeu peut vous forcer à secouer dans une direction précise. Gauche-droite ou haut-bas — le mauvais axe ne refroidit pas."),
-            TutoItem("🧊", "Power-ups", "Des bonus apparaissent à l'écran pendant quelques secondes. Appuyez dessus vite pour en profiter."),
-            TutoItem("⚡", "Événements", "Des perturbations aléatoires surviennent en cours de partie : surchauffe, capteur défaillant, court-circuit..."),
-            TutoItem("🏆", "Score", "Plus vous survivez longtemps dans la zone rouge, plus vous marquez de points.")
+            TutoItem("🔥", "Refroidissez !",
+                "La température monte toute seule en permanence. Secouez le téléphone pour la faire baisser. Si elle atteint 100°, c'est game over."),
+            TutoItem("⚠️", "Mode bug",
+                "Les contrôles s'inversent sans prévenir, secouer chauffe au lieu de refroidir ! Arrêtez de secouer dès que vous voyez cette alerte."),
+            TutoItem("↔️", "Axe imposé",
+                "Le jeu peut imposer une direction de secousse. GAUCHE-DROITE = secouez horizontalement. HAUT-BAS = secouez verticalement. Le mauvais axe n'a aucun effet."),
+            TutoItem("🧊", "Pack de glace",
+                "Appuyez dessus pour faire chuter la température de 10° immédiatement."),
+            TutoItem("💠", "Azote liquide",
+                "Appuyez dessus pour geler la température pendant 5 secondes. Ni montée, ni descente."),
+            TutoItem("🔧", "Antivirus",
+                "Appuyez dessus pour annuler immédiatement le mode bug ou l'événement en cours."),
+            TutoItem("🌡️", "Événements",
+                "Toutes les quelques secondes, un évènement arrive : Surchauffe (chauffe x2), Capteur défaillant (secousses moins efficaces), Court-circuit (pics de chaleur soudains) ou Ventilation (refroidissement x2) si vous avez de la chance."),
+            TutoItem("🏆", "Score",
+                "Survivre dans la zone orange rapporte x2 points. Dans la zone rouge, x4. Jouez avec le feu pour scorer plus !")
         )
 
         Column(
